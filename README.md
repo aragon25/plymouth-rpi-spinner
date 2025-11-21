@@ -31,8 +31,8 @@ These are standard packages on Debian/Raspbian systems.
 Build or download the release package and install it on the device:
 
 ```bash
-wget https://github.com/aragon25/plymouth-rpi-spinner/releases/download/v1.1-3/plymouth-rpi-spinner_1.1-3_all.deb
-sudo apt install ./iplymouth-rpi-spinner_1.1-3_all.deb
+wget https://github.com/aragon25/plymouth-rpi-spinner/releases/download/v1.1-3/plymouth-theme-rpi-spinner_1.1-3_all.deb
+sudo apt install ./plymouth-theme-rpi-spinner_1.1-3_all.deb
 ```
 
 This installs the theme into `/usr/share/plymouth/themes/rpi-spinner` and places the activation script in `/usr/local/bin/` (packaging may vary; inspect `deploy/config/build_deb.conf`).
