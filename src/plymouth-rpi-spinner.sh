@@ -7,7 +7,7 @@
 
 #get some variables
 SCRIPT_TITLE="plymouth-rpi-spinner"
-SCRIPT_VERSION="1.1"
+SCRIPT_VERSION="1.2"
 SCRIPTDIR="$(readlink -f "$0")"
 SCRIPTNAME="$(basename "$SCRIPTDIR")"
 SCRIPTDIR="$(dirname "$SCRIPTDIR")"
