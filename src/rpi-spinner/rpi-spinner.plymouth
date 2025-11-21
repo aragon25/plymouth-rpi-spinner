@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=rpi-spinner
+Description=Loginspinner animation from Deepin 15 for Plymouth.
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/rpi-spinner
+ScriptFile=/usr/share/plymouth/themes/rpi-spinner/rpi-spinner.script

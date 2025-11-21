@@ -1,0 +1,5 @@
+#!/bin/bash
+if [ "$1" == "remove" ]; then
+  systemctl daemon-reload >/dev/null 2>&1
+fi
+exit 0

@@ -1,0 +1,15 @@
+# Debian test packages and deployement
+deploy/deb_build/*
+packages/*_test.deb
+
+# Virtual environment
+src/venv/
+src/.env/
+src/.env
+src/.env.lokal
+
+# Editor and system files
+*.swp
+.DS_Store
+.idea/
+.vscode/
