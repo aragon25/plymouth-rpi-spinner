@@ -88,6 +88,7 @@ function do_check_start() {
       echo "You need to run Raspbian OS ($rasos) to run this script! Can not continue with this script!"
       exit 1
     fi
+  fi
   #check cpu architecture
   if [ "$cpuarch" != "" ]; then
     cpuarch_v="$(dpkg --print-architecture 2>/dev/null)"
@@ -126,8 +127,9 @@ function cmd_activate() {
       plymouth-set-default-theme -R rpi-spinner >/dev/null 2>&1
     fi
   elif command -v update-alternatives >/dev/null; then
-    update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/rpi-spinner/rpi-spinner.plymouth 200 >/dev/null 2>&1
+    update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/rpi-spinner/rpi-spinner.plymouth 150 >/dev/null 2>&1
     update-alternatives --set default.plymouth /usr/share/plymouth/themes/rpi-spinner/rpi-spinner.plymouth >/dev/null 2>&1
+    update-initramfs -u >/dev/null 2>&1
   else
     echo "No suitable command found to set plymouth theme! Can not continue with this script!"
     return 1
@@ -141,9 +143,9 @@ function cmd_deactivate() {
       plymouth-set-default-theme -R details >/dev/null 2>&1
     fi
   elif command -v update-alternatives >/dev/null; then
+    update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/details/details.plymouth 50 >/dev/null 2>&1
     update-alternatives --remove default.plymouth /usr/share/plymouth/themes/rpi-spinner/rpi-spinner.plymouth >/dev/null 2>&1
-    update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/details/details.plymouth 200 >/dev/null 2>&1
-    update-alternatives --set default.plymouth /usr/share/plymouth/themes/details.plymouth >/dev/null 2>&1
+    update-initramfs -u >/dev/null 2>&1
   else
     echo "No suitable command found to set plymouth theme! Can not continue with this script!"
     return 1
@@ -171,10 +173,10 @@ function cmd_print_help() {
   echo "Author: aragon25 <aragon25.01@web.de>"
 }
 
-[ "$cmd" != "version" ] && [ "$cmd" != "help" ] &&  do_check_start
-[[ "$cmd" == "version" ]] && cmd_print_version
-[[ "$cmd" == "help" ]] && cmd_print_help
-[[ "$cmd" == "activate" ]] && cmd_activate
-[[ "$cmd" == "deactivate" ]] && cmd_deactivate
+[ "$CMD" != "version" ] && [ "$CMD" != "help" ] && do_check_start
+[[ "$CMD" == "version" ]] && cmd_print_version
+[[ "$CMD" == "help" ]] && cmd_print_help
+[[ "$CMD" == "activate" ]] && cmd_activate
+[[ "$CMD" == "deactivate" ]] && cmd_deactivate
 
 exit 0
