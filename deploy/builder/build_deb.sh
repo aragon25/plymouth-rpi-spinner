@@ -6,7 +6,7 @@
 ##############################################
 
 SCRIPT_TITLE="build_deb (deb builder)"
-SCRIPT_VERSION="1.5"
+SCRIPT_VERSION="1.6"
 SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_NAME="$(basename "$SCRIPT_PATH")"
 SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
@@ -87,6 +87,20 @@ function check_cfg_paths() {
       if ! is_valid_filepath "$dest"; then
         echo "ERROR: Destination filepath '$dest' not valid"
         ((errors++))
+      fi
+      if [[ -f "$src" ]]; then
+        local src_dir src_payload dest_dir dest_payload add_line
+        src_dir="$(dirname "$src")"
+        src_payload="$(basename "$src" ".sh")_payload"
+        dest_dir="$(dirname "$dest")"
+        dest_payload="$(basename "$dest" ".sh")_payload"
+        if [[ -d "$src_dir/$src_payload" ]]; then
+          add_line="$src_dir/$src_payload=$dest_dir/$dest_payload"
+          if [[ -z "$CFG_DIRS_CONF" ]] || ! grep -qF "$dest_dir/$dest_payload" <<< "$CFG_DIRS_CONF"; then
+            CFG_DIRS_CONF="${CFG_DIRS_CONF}"$'\n'"${add_line}"
+            echo "Info: auto-added payload dir copy: ${src_payload}"
+          fi
+        fi
       fi
       ((file_ok++))
     done <<< "$CFG_FILES_CONF"
