@@ -9,4 +9,8 @@ if [ -f "/usr/share/plymouth/themes/rpi-spinner/rpi-spinner.plymouth" ] && [ "$1
   echo "File: \"/usr/share/plymouth/themes/rpi-spinner/rpi-spinner.plymouth\""
   exit 1
 fi
+if [ "$1" == "install" ]; then
+  mkdir -p "/usr/lib/rpi-spinner" >/dev/null 2>&1
+  touch "/usr/lib/rpi-spinner/first_install" 2>/dev/null
+fi
 exit 0

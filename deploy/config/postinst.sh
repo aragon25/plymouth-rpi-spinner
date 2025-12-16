@@ -1,5 +1,6 @@
 #!/bin/bash
-if [ "$(which plymouth-rpi-spinner)" != "" ]; then
+if [ -f "/usr/lib/rpi-spinner/first_install" ]; then
+  rm -f "/usr/lib/rpi-spinner/first_install" >/dev/null 2>&1
   echo "Change plymouth theme to rpi-spinner ..."
   plymouth-rpi-spinner --activate >/dev/null 2>&1
 fi

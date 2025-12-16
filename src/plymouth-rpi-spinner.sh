@@ -123,7 +123,10 @@ function do_check_start() {
 
 function cmd_activate() {
   if command -v plymouth-set-default-theme >/dev/null; then
-    if [ "$(plymouth-set-default-theme)" != "rpi-spinner" ]; then
+    local current_theme="$(plymouth-set-default-theme)"
+    if [ "$current_theme" != "rpi-spinner" ]; then
+      mkdir -p /usr/lib/rpi-spinner >/dev/null 2>&1
+      echo "$current_theme" >/usr/lib/rpi-spinner/plymouth_savedtheme 2>/dev/null
       plymouth-set-default-theme -R rpi-spinner >/dev/null 2>&1
     fi
   elif command -v update-alternatives >/dev/null; then
@@ -131,7 +134,9 @@ function cmd_activate() {
     update-alternatives --set default.plymouth /usr/share/plymouth/themes/rpi-spinner/rpi-spinner.plymouth >/dev/null 2>&1
     update-initramfs -u >/dev/null 2>&1
   else
-    echo "No suitable command found to set plymouth theme! Can not continue with this script!"
+    echo "... No suitable command found to set plymouth theme! ..."
+    rm -f "/usr/lib/rpi-spinner/plymouth_savedtheme" 2>/dev/null
+    EXITCODE=1
     return 1
   fi
   echo "plymouth theme rpi-spinner activated!"
@@ -139,17 +144,27 @@ function cmd_activate() {
 
 function cmd_deactivate() {
   if command -v plymouth-set-default-theme >/dev/null; then
-    if [ "$(plymouth-set-default-theme)" == "rpi-spinner" ]; then
-      plymouth-set-default-theme -R details >/dev/null 2>&1
+    local current_theme="$(plymouth-set-default-theme)"
+    local saved_theme="$(awk 'NR==1 {print $1}' /usr/lib/rpi-spinner/plymouth_savedtheme 2>/dev/null)"
+    if [ "$current_theme" == "rpi-spinner" ]; then
+      if [ "$saved_theme" != "" ]; then
+        if ! plymouth-set-default-theme -R "$saved_theme" >/dev/null 2>&1; then
+          plymouth-set-default-theme -R details >/dev/null 2>&1
+        fi
+      else
+        plymouth-set-default-theme -R details >/dev/null 2>&1
+      fi
     fi
   elif command -v update-alternatives >/dev/null; then
     update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/details/details.plymouth 50 >/dev/null 2>&1
     update-alternatives --remove default.plymouth /usr/share/plymouth/themes/rpi-spinner/rpi-spinner.plymouth >/dev/null 2>&1
     update-initramfs -u >/dev/null 2>&1
   else
-    echo "No suitable command found to set plymouth theme! Can not continue with this script!"
+    echo "... No suitable command found to set plymouth theme! ..."
+    EXITCODE=1
     return 1
   fi
+  rm -f /usr/lib/rpi-spinner/plymouth_savedtheme 2>/dev/null
   echo "plymouth theme rpi-spinner deactivated!"
 }
 
