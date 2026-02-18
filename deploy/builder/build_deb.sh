@@ -6,7 +6,7 @@
 ##############################################
 
 SCRIPT_TITLE="build_deb (deb builder)"
-SCRIPT_VERSION="1.6"
+SCRIPT_VERSION="1.6.1"
 SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_NAME="$(basename "$SCRIPT_PATH")"
 SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
@@ -350,6 +350,7 @@ function check_cfg_release_dir() {
 
 function check_cfg_deb_base_file_name() {
   [[ -z "$CFG_DEB_BASE_FILE_NAME" ]] && return 0
+  CFG_DEB_BASE_FILE_NAME="${CFG_DEB_BASE_FILE_NAME//:/_}"
   if [[ "$CFG_DEB_BASE_FILE_NAME" =~ [^a-zA-Z0-9._+-] ]]; then
     echo "ERROR: CFG_DEB_BASE_FILE_NAME='$CFG_DEB_BASE_FILE_NAME' contains invalid characters!"
     echo "  → Only letters, digits, dot (.), dash (-), underscore (_), and plus (+) are allowed."
@@ -415,6 +416,7 @@ function config_read_check_file(){
   [[ -n "$CFG_RELEASE_DIR" ]] && RELEASE_DIR="$CFG_RELEASE_DIR" || RELEASE_DIR="./release"
   [[ -n "$CFG_DEB_BASE_FILE_NAME" ]] && DEB_BASE_FILE_NAME="$CFG_DEB_BASE_FILE_NAME" || DEB_BASE_FILE_NAME="${CFG_NAME}_${CFG_VERSION}_${CFG_ARCH}"
   [[ -n "$TEST_DEB" ]] && DEB_BASE_FILE_NAME="${DEB_BASE_FILE_NAME}_test"
+  DEB_BASE_FILE_NAME="${DEB_BASE_FILE_NAME//:/_}"
   [ "${SUCCESSCODE}" != "TRUE" ] && return 1 || return 0
 }
 

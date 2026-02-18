@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.2-1] - TESTING
+## [1.2-1] - 2026-02-18
 
 ### Removed
 - Raspberry Pi bindings
