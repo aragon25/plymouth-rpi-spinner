@@ -1,7 +1,8 @@
 #!/bin/bash
-if [ "$(plymouth-set-default-theme)" != "rpi-spinner" ]; then
+if [ -f "/usr/lib/rpi-spinner/first_install" ]; then
+  rm -f "/usr/lib/rpi-spinner/first_install" >/dev/null 2>&1
   echo "Change plymouth theme to rpi-spinner ..."
-  plymouth-set-default-theme -R rpi-spinner >/dev/null 2>&1
+  plymouth-rpi-spinner --activate >/dev/null 2>&1
 fi
 systemctl daemon-reload >/dev/null 2>&1
 exit 0

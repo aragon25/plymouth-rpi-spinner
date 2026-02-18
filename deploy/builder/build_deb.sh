@@ -6,7 +6,7 @@
 ##############################################
 
 SCRIPT_TITLE="build_deb (deb builder)"
-SCRIPT_VERSION="1.4"
+SCRIPT_VERSION="1.6.1"
 SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_NAME="$(basename "$SCRIPT_PATH")"
 SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
@@ -59,6 +59,7 @@ function check_entries(){ # cfg_name, cfg_value, possible_values
   for entry in "${entries[@]}"; do
     if [[ ! "|$allowed_values|" == *"|$entry|"* ]]; then
       echo "ERROR: '$entry' is not valid for $cfg_name!"
+      return 1
     fi
   done
 }
@@ -86,6 +87,20 @@ function check_cfg_paths() {
       if ! is_valid_filepath "$dest"; then
         echo "ERROR: Destination filepath '$dest' not valid"
         ((errors++))
+      fi
+      if [[ -f "$src" ]]; then
+        local src_dir src_payload dest_dir dest_payload add_line
+        src_dir="$(dirname "$src")"
+        src_payload="$(basename "$src" ".sh")_payload"
+        dest_dir="$(dirname "$dest")"
+        dest_payload="$(basename "$dest" ".sh")_payload"
+        if [[ -d "$src_dir/$src_payload" ]]; then
+          add_line="$src_dir/$src_payload=$dest_dir/$dest_payload"
+          if [[ -z "$CFG_DIRS_CONF" ]] || ! grep -qF "$dest_dir/$dest_payload" <<< "$CFG_DIRS_CONF"; then
+            CFG_DIRS_CONF="${CFG_DIRS_CONF}"$'\n'"${add_line}"
+            echo "Info: auto-added payload dir copy: ${src_payload}"
+          fi
+        fi
       fi
       ((file_ok++))
     done <<< "$CFG_FILES_CONF"
@@ -335,6 +350,7 @@ function check_cfg_release_dir() {
 
 function check_cfg_deb_base_file_name() {
   [[ -z "$CFG_DEB_BASE_FILE_NAME" ]] && return 0
+  CFG_DEB_BASE_FILE_NAME="${CFG_DEB_BASE_FILE_NAME//:/_}"
   if [[ "$CFG_DEB_BASE_FILE_NAME" =~ [^a-zA-Z0-9._+-] ]]; then
     echo "ERROR: CFG_DEB_BASE_FILE_NAME='$CFG_DEB_BASE_FILE_NAME' contains invalid characters!"
     echo "  → Only letters, digits, dot (.), dash (-), underscore (_), and plus (+) are allowed."
@@ -370,7 +386,7 @@ function config_read_check_file(){
   source "${CONFIG_FILE}"
   local SUCCESSCODE="TRUE"
   check_entries "CFG_RES_RAS_PI" "$CFG_RES_RAS_PI" "rpi5|rpi4|rpi3|all" || SUCCESSCODE="FALSE"
-  check_entries "CFG_RES_RAS_OS" "$CFG_RES_RAS_OS" "bookworm|bullseye|all" || SUCCESSCODE="FALSE"
+  check_entries "CFG_RES_RAS_OS" "$CFG_RES_RAS_OS" "trixie|bookworm|bullseye|all" || SUCCESSCODE="FALSE"
   check_entries "CFG_RES_CPU_ARCH" "$CFG_RES_CPU_ARCH" "i386|armhf|amd64|arm64" || SUCCESSCODE="FALSE"
   check_entries "CFG_RES_OS_ARCH" "$CFG_RES_OS_ARCH" "32|64" || SUCCESSCODE="FALSE"
   check_cfg_paths || SUCCESSCODE="FALSE"
@@ -400,6 +416,7 @@ function config_read_check_file(){
   [[ -n "$CFG_RELEASE_DIR" ]] && RELEASE_DIR="$CFG_RELEASE_DIR" || RELEASE_DIR="./release"
   [[ -n "$CFG_DEB_BASE_FILE_NAME" ]] && DEB_BASE_FILE_NAME="$CFG_DEB_BASE_FILE_NAME" || DEB_BASE_FILE_NAME="${CFG_NAME}_${CFG_VERSION}_${CFG_ARCH}"
   [[ -n "$TEST_DEB" ]] && DEB_BASE_FILE_NAME="${DEB_BASE_FILE_NAME}_test"
+  DEB_BASE_FILE_NAME="${DEB_BASE_FILE_NAME//:/_}"
   [ "${SUCCESSCODE}" != "TRUE" ] && return 1 || return 0
 }
 
@@ -770,7 +787,7 @@ function cmd_print_version() {
 }
 
 function cmd_print_help() {
-  echo "Usage: $(basename ""$0"") [OPTION]"
+  echo "Usage: $SCRIPT_NAME [OPTION]"
   echo "$SCRIPT_TITLE v$SCRIPT_VERSION"
   echo "Configuarable Debian Package file builder"
   echo " "

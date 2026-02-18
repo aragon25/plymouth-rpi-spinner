@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2-1] - 2026-02-18
+
+### Removed
+- Raspberry Pi bindings
+
+### Fixed
+- set theme fixes
+
 ## [1.1-3] - 2025-11-21
 
 ### Changed
